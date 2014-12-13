@@ -1,0 +1,16 @@
+create external table tweets (
+   created_at string,
+   id bigint,
+   text string,
+   source string,
+   truncated boolean,
+   in_reply_to_status_id bigint,
+   user struct <
+      id: int,
+      id_str: binary>,
+   name string,
+   retweet_count int
+ )
+ROW FORMAT SERDE 'org.openx.data.jsonserde.JsonSerDe'
+STORED AS TEXTFILE
+LOCATION '/user/biadmin/hivepro';

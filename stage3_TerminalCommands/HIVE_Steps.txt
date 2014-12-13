@@ -1,0 +1,78 @@
+
+CSV File Output Count:
+
+o1:3876
+o2:299
+o3:923
+o4:4654
+o5:2037
+o6:431
+o7:1693
+o8:3460
+o9:2260
+
+
+Hive steps
+
+
+1.Create a table master_tweets
+2.load data into table using below statement:
+
+load data local inpath "/home/biadmin/Desktop/PB2-2days/androidoutput.csv" into table master_tweets;
+
+load data local inpath "/home/biadmin/Desktop/PB2-2days/output.csv" into table master_tweets3;
+
+
+//
+
+CREATE EXTERNAL TABLE tweets111
+ (created_at string,
+id varchar(1000),
+id_str varchar(1000),
+text string,
+source string,
+truncated boolean,
+user_id varchar(1000),
+user_id_str varchar(1000),
+user_name varchar(1000),
+user_screen_name varchar(1000),
+user_location varchar(1000),
+user_url varchar(1000),
+user_description varchar(10000),
+user_protected boolean,
+user_verified boolean,
+user_followers_count varchar(1000),
+user_friends_count varchar(1000),
+user_listed_count varchar(1000),
+user_favourites_count varchar(1000),
+user_statuses_count varchar(1000),
+user_created_at varchar(1000),
+user_utc_offset varchar(1000),
+user_time_zone varchar(1000),
+user_geo_enabled boolean,
+user_lang varchar(1000),
+user_default_profile boolean,
+user_default_profile_image varchar(1000),
+user_follow_request_sent varchar(1000),
+user_notifications varchar(1000),
+geo string,
+coordinates string,
+place string,
+contributors string,
+retweet_count int,
+favorite_count int,
+favorited boolean,
+retweeted boolean,
+possibly_sensitive boolean,
+filter_level string,
+lang string,
+timestamp_ms string)    
+COMMENT "A table backed by Avro data with the Avro schema stored in HDFS"
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'    
+STORED AS 
+   INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'    
+   OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
+LOCATION '/user/biadmin/avro/data/'    
+TBLPROPERTIES 
+ ('avro.schema.url'='hdfs:///user/biadmin/avro/twitter.avsc')
+; 

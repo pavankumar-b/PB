@@ -1,0 +1,130 @@
+JOIN of 2 tables
+
+1:--- User Contribution towards tweets in DataSet
+
+select count(ti.text), ui.user_id, ui.user_name, ui.user_screen_name
+From tweet_info ti JOIN user_info ui
+ON (ti.user_id = ui.user_id)
+GROUP BY ui.user_id, ui.user_name, ui.user_screen_name;
+
+
+create external table user_test (
+count int,
+user_id bigint,
+name string,
+screen_name string
+)
+ROW FORMAT serde 'com.bizo.hive.serde.csv.CSVSerde'
+with serdeproperties(
+"separatorChar" = "\,",
+"quoteChar" = "\"")
+stored as textfile
+location "/user/biadmin/PBProject/user_test"; 
+
+Insert overwrite table user_test select count(ti.text), ui.user_id, ui.user_name, ui.user_screen_name
+From tweet_info ti JOIN user_info ui
+ON (ti.user_id = ui.user_id)
+GROUP BY ui.user_id, ui.user_name, ui.user_screen_name;
+
+hadoop fs -copyToLocal /user/biadmin/PBProject/user_test /home/biadmin/Desktop/PB2-2days/Hivetableop
+
+
+2:--- Active Users in Twitter from given Users Dataset
+
+select ui.user_id,ui.user_name,ui.user_screen_name,uci.user_statuses_count
+from user_info ui JOIN user_count_info uci
+ON (ui.user_id=uci.user_id)
+ORDER BY uci.user_statuses_count DESC;
+
+
+create external table active_user (
+user_id bigint,
+name string,
+screen_name string,
+count int
+)
+ROW FORMAT serde 'com.bizo.hive.serde.csv.CSVSerde'
+with serdeproperties(
+"separatorChar" = "\,",
+"quoteChar" = "\"")
+stored as textfile
+location "/user/biadmin/PBProject/active_user"; 
+
+
+Insert overwrite table active_user select ui.user_id,ui.user_name,ui.user_screen_name,uci.user_statuses_count
+from user_info ui JOIN user_count_info uci
+ON (ui.user_id=uci.user_id)
+ORDER BY uci.user_statuses_count DESC;
+
+hadoop fs -copyToLocal /user/biadmin/PBProject/active_user /home/biadmin/Desktop/PB2-2days/Hivetableop
+
+-------------
+3:Tweet GEO Locations:
+
+select text,geo_coord_lat,geo_coord_long from tweet_info where geo_coord_lat is not null and geo_coord_long is not null;
+
+create external table tweet_geo (
+tweet string,
+geo_lat float,
+geo_long float
+)
+ROW FORMAT serde 'com.bizo.hive.serde.csv.CSVSerde'
+with serdeproperties(
+"separatorChar" = "\,",
+"quoteChar" = "\"")
+stored as textfile
+location "/user/biadmin/PBProject/tweet_geo";
+
+
+Insert into table tweet_geo select text,geo_coord_lat,geo_coord_long from tweet_info where geo_coord_lat is not null and geo_coord_long is not null;
+
+
+hadoop fs -copyToLocal /user/biadmin/PBProject/tweet_geo /home/biadmin/Desktop/PB2-2days/Hivetableop
+
+----------------
+4:Popular users
+
+select ui.user_name,ui.user_screen_name,uci.user_followers_count
+from user_info ui JOIN user_count_info uci
+ON(ui.user_id=uci.user_id)
+ORDER BY uci.user_followers_count DESC;
+
+
+create external table popular_user (
+user_name string,
+screen_name string,
+followers_count int
+)
+ROW FORMAT serde 'com.bizo.hive.serde.csv.CSVSerde'
+with serdeproperties(
+"separatorChar" = "\,",
+"quoteChar" = "\"")
+stored as textfile
+location "/user/biadmin/PBProject/popular_user";
+
+Insert into table popular_user select ui.user_name,ui.user_screen_name,uci.user_followers_count
+from user_info ui JOIN user_count_info uci
+ON(ui.user_id=uci.user_id)
+ORDER BY uci.user_followers_count DESC;
+
+
+hadoop fs -copyToLocal /user/biadmin/PBProject/popular_user /home/biadmin/Desktop/PB2-2days/Hivetableop
+---------
+5: 
+
+select place_country country,count(*) count from tweet_info group by place_country;
+
+create external table ctry_tweets (
+Country string,
+count int
+)
+ROW FORMAT serde 'com.bizo.hive.serde.csv.CSVSerde'
+with serdeproperties(
+"separatorChar" = "\,",
+"quoteChar" = "\"")
+stored as textfile
+location "/user/biadmin/PBProject/ctry_tweets";
+
+Insert overwrite table ctry_tweets select place_country country,count(*) count from tweet_info group by place_country having place_country is not null;
+
+hadoop fs -copyToLocal /user/biadmin/PBProject/ctry_tweets /home/biadmin/Desktop/PB2-2days/Hivetableop
